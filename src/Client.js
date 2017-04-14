@@ -47,6 +47,11 @@ class InstagramClient {
   async getMediaLikes(id, p) { return this.get(Endpoints.Media.Likes(id), p); }
   async likeMedia(id, p) { return this.post(Endpoints.Media.Likes(id), p); }
   async unlikeMedia(id, p) { return this.del(Endpoints.Media.Likes(id), p); }
+
+  // TAGS endpoints
+  async getHashtag(name, p) { return this.get(Endpoints.Tags.Tag(name), p); }
+  async getRecentMediaByHashtag(name, p) { return this.get(Endpoints.Tags.RecentMedia(name), p); }
+  async searchHashtags(p) { return this.get(Endpoints.Tags.Search, p); }
 }
 
 module.exports = InstagramClient;
