@@ -19,6 +19,9 @@
   "bugs": {
     "url": "https://github.com/hydrabolt/instagram.js/issues"
   },
+  "engines": {
+    "node": ">=7.6.0"
+  },
   "homepage": "https://github.com/hydrabolt/instagram.js#readme",
   "dependencies": {
     "snekfetch": "^2.2.2"
