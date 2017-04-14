@@ -39,7 +39,7 @@ const Endpoints = {
   },
 };
 
-const afterRequest = function(r) {
+const afterRequest = function afterRequest(r) {
   const data = r.body;
   data.ratelimit = {
     limit: Number(r.headers['x-ratelimit-limit']),
@@ -48,7 +48,13 @@ const afterRequest = function(r) {
   return data;
 }
 
+const defaultOptions = function defaultOptions(options = {}) {
+  if (!options.cache) options.cache = 0;
+  return options;
+}
+
 module.exports = {
   Endpoints,
   afterRequest,
+  defaultOptions,
 }

@@ -1,11 +1,14 @@
 const AuthorizedUser = require('./AuthorizedUser');
-const { Endpoints, afterRequest } = require('./Constants');
+const { Endpoints, afterRequest, defaultOptions } = require('./Constants');
 const request = require('snekfetch');
+const requestCache = require('./requestCache');
 
 class Client {
-  constructor(id, secret) {
+  constructor(id, secret, options = {}) {
     this.auth = { id, secret };
+    this.options = defaultOptions(options);
     this.users = new Map();
+    this.cache = requestCache.cache;
   }
 
   authorizeUser(token) {
@@ -28,9 +31,12 @@ class Client {
   }
 
   async listSubscriptions() {
+    const url = `${Endpoints.Subscriptions}?client_id=${this.auth.id}&client_secret=${this.auth.secret}`;
+    const item = requestCache.getExisting(url);
+    if (item) return item;
     return request
-      .get(`${Endpoints.Subscriptions}?client_id=${this.auth.id}&client_secret=${this.auth.secret}`)
-      .then(afterRequest);
+      .get(url)
+      .then(afterRequest).then(r => requestCache.cacheItem(url, r, Date.now() + this.options.cache));
   }
 
   async deleteSubscription(options = {}) {

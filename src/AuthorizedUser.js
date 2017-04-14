@@ -1,17 +1,31 @@
-const { Endpoints, afterRequest } = require('./Constants');
+const { Endpoints, afterRequest, defaultOptions } = require('./Constants');
+const requestCache = require('./requestCache');
 const request = require('snekfetch');
 
 class AuthorizedUser {
-  constructor(token, client) {
+  constructor(token, client, options) {
     this.client = client;
     this.token = token;
+    this.cache = requestCache.cache;
+    this.options = defaultOptions(options);
+  }
+
+  option(name) {
+    return this.options[name] || this.client ? this.client.options[name] : undefined;
   }
 
   _api(verb, endpoint, parameters = {}) {
     parameters.access_token = this.token;
     parameters = Object.entries(parameters).map(pair => `${pair[0]}=${encodeURIComponent(pair[1])}`).join('&');
     const url = `${endpoint}?${parameters}`;
-    return request[verb](url).then(afterRequest);
+    const cache = this.option('cache');
+    if (verb === 'get' && cache > 0) {
+      const cachedItem = requestCache.getExisting(url);
+      if (cachedItem) return cachedItem;
+    }
+    return request[verb](url).then(afterRequest).then(r => {
+      if (verb === 'get' && cache > 0) return requestCache.cacheItem(url, r, Date.now() + cache);
+    });
   }
 
   async get(endpoint, parameters) { return this._api('get', endpoint, parameters); }
