@@ -7,7 +7,7 @@ const client = new Instagram.Client(auth.clientID, auth.clientSecret);
 const user = client.authorizeUser(auth.token);
 
 async function test() {
-  const response = await client.listSubscriptions();
+  const response = await user.getUser();
   console.log(response);
 }
 

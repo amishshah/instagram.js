@@ -39,6 +39,16 @@ const Endpoints = {
   },
 };
 
+const afterRequest = function(r) {
+  const data = r.body;
+  data.ratelimit = {
+    limit: Number(r.headers['x-ratelimit-limit']),
+    remaining: Number(r.headers['x-ratelimit-remaining']),
+  };
+  return data;
+}
+
 module.exports = {
   Endpoints,
+  afterRequest,
 }

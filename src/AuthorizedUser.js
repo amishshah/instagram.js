@@ -1,4 +1,4 @@
-const Endpoints = require('./Constants').Endpoints;
+const { Endpoints, afterRequest } = require('./Constants');
 const request = require('snekfetch');
 
 class AuthorizedUser {
@@ -11,7 +11,7 @@ class AuthorizedUser {
     parameters.access_token = this.token;
     parameters = Object.entries(parameters).map(pair => `${pair[0]}=${encodeURIComponent(pair[1])}`).join('&');
     const url = `${endpoint}?${parameters}`;
-    return request[verb](url).then(r => r.body);
+    return request[verb](url).then(afterRequest);
   }
 
   async get(endpoint, parameters) { return this._api('get', endpoint, parameters); }
@@ -20,8 +20,8 @@ class AuthorizedUser {
   async del(endpoint, parameters) { return this._api('del', endpoint, parameters); }
 
   // USERS endpoints
-  async getUser(id) { return this.get(Endpoints.Users.User(id)); }
-  async getMediaRecent(id, p) { return this.get(Endpoints.Users.Media.Recent(id), p); }
+  async getUser(id = 'self') { return this.get(Endpoints.Users.User(id)); }
+  async getMediaRecent(id = 'self', p) { return this.get(Endpoints.Users.Media.Recent(id), p); }
   async getLikedMedia(p) { return this.get(Endpoints.Users.Media.Liked('self'), p); }
   async searchUsers(p) { return this.get(Endpoints.Users.Search, p); }
 

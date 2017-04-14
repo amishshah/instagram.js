@@ -1,5 +1,5 @@
 const AuthorizedUser = require('./AuthorizedUser');
-const Endpoints = require('./Constants').Endpoints;
+const { Endpoints, afterRequest } = require('./Constants');
 const request = require('snekfetch');
 
 class Client {
@@ -24,20 +24,20 @@ class Client {
       .field('aspect', options.aspect)
       .field('verify_token', options.verify_token || options.verifyToken)
       .field('callback_url', options.callback_url || options.callbackURL)
-      .then(r => r.body);
+      .then(afterRequest);
   }
 
   async listSubscriptions() {
     return request
       .get(`${Endpoints.Subscriptions}?client_id=${this.auth.id}&client_secret=${this.auth.secret}`)
-      .then(r => r.body);
+      .then(afterRequest);
   }
 
   async deleteSubscription(options = {}) {
-    const identifier = options.id ? `id=${options.id}` : `object=${options.object}`;
+    const x = options.id ? `id=${options.id}` : `object=${options.object}`;
     return request
-      .del(`${Endpoints.Subscriptions}?client_id=${this.auth.id}&client_secret=${this.auth.secret}&${identifier}`)
-      .then(r => r.body);
+      .del(`${Endpoints.Subscriptions}?client_id=${this.auth.id}&client_secret=${this.auth.secret}&${x}`)
+      .then(afterRequest);
   }
 }
 
