@@ -37,6 +37,11 @@ class InstagramClient {
   async getMedia(id, p) { return this.get(Endpoints.Media.Media(id), p); }
   async getMediaByShortcode(code, p) { return this.get(Endpoints.Media.MediaShortcode(code), p); }
   async searchMedia(p) { return this.get(Endpoints.Media.Search, p); }
+
+  // COMMENT endpoints
+  async getComments(id, p) { return this.get(Endpoints.Media.Comments(id), p); }
+  async createComment(id, p) { return this.post(Endpoints.Media.Comments(id), p); }
+  async deleteComment(id, p) { return this.del(Endpoints.Media.Comment(id), p); }
 }
 
 module.exports = InstagramClient;
