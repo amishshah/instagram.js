@@ -3,8 +3,10 @@ const Users = `${BaseURL}/users`;
 const Media = `${BaseURL}/media`;
 const Tags = `${BaseURL}/tags`;
 const Locations = `${BaseURL}/locations`;
+const Subscriptions = `${BaseURL}/subscriptions`;
 
 const Endpoints = {
+  Subscriptions,
   Users: {
     User: id => `${Users}/${id}`,
     Search: q => `${Users}/search`,

@@ -1,62 +1,44 @@
+const AuthorizedUser = require('./AuthorizedUser');
 const Endpoints = require('./Constants').Endpoints;
 const request = require('snekfetch');
 
-class InstagramClient {
-  constructor(token) {
-    this.token = token;
+class Client {
+  constructor(id, secret) {
+    this.auth = { id, secret };
+    this.users = new Map();
   }
 
-  _api(verb, endpoint, parameters = {}) {
-    return new Promise((resolve, reject) => {
-      parameters.access_token = this.token;
-      parameters = Object.entries(parameters).map(pair => `${pair[0]}=${encodeURIComponent(pair[1])}`).join('&');
-      const url = `${endpoint}?${parameters}`;
-      request[verb](url).end((e, r) => e ? reject(e) : resolve(r.body));
-    });
+  authorizeUser(token) {
+    if (this.users.has(token)) return this.users.get(token);
+    const user = new AuthorizedUser(token, this);
+    this.users.set(token, user);
+    return user;
   }
 
-  async get(endpoint, parameters) { return this._api('get', endpoint, parameters); }
-  async post(endpoint, parameters) { return this._api('post', endpoint, parameters); }
-  async put(endpoint, parameters) { return this._api('put', endpoint, parameters); }
-  async del(endpoint, parameters) { return this._api('del', endpoint, parameters); }
+  async createSubscription(options = {}) {
+    return request
+      .post(Endpoints.Subscriptions)
+      .field('client_id', this.auth.id)
+      .field('client_secret', this.auth.secret)
+      .field('object', options.object)
+      .field('aspect', options.aspect)
+      .field('verify_token', options.verify_token || options.verifyToken)
+      .field('callback_url', options.callback_url || options.callbackURL)
+      .then(r => r.body);
+  }
 
-  // USERS endpoints
-  async getUser(id) { return this.get(Endpoints.Users.User(id)); }
-  async getMediaRecent(id, p) { return this.get(Endpoints.Users.Media.Recent(id), p); }
-  async getLikedMedia(p) { return this.get(Endpoints.Users.Media.Liked('self'), p); }
-  async searchUsers(p) { return this.get(Endpoints.Users.Search, p); }
+  async listSubscriptions() {
+    return request
+      .get(`${Endpoints.Subscriptions}?client_id=${this.auth.id}&client_secret=${this.auth.secret}`)
+      .then(r => r.body);
+  }
 
-  // RELATIONSHIPS endpoints
-  async getFollowing(p) { return this.get(Endpoints.Users.Following, p); }
-  async getFollowers(p) { return this.get(Endpoints.Users.Followers, p); }
-  async getRequestedFollowers(p) { return this.get(Endpoints.Users.RequestedFollowers, p); }
-  async getRelationship(id, p) { return this.get(Endpoints.Users.RelationshipWith(id), p); }
-  async modifyRelationship(id, p) { return this.post(Endpoints.Users.RelationshipWith(id), p); }
-
-  // MEDIA endpoints
-  async getMedia(id, p) { return this.get(Endpoints.Media.Media(id), p); }
-  async getMediaByShortcode(code, p) { return this.get(Endpoints.Media.MediaShortcode(code), p); }
-  async searchMedia(p) { return this.get(Endpoints.Media.Search, p); }
-
-  // COMMENT endpoints
-  async getComments(id, p) { return this.get(Endpoints.Media.Comments(id), p); }
-  async createComment(id, p) { return this.post(Endpoints.Media.Comments(id), p); }
-  async deleteComment(id, p) { return this.del(Endpoints.Media.Comment(id), p); }
-
-  // LIKES endpoints
-  async getMediaLikes(id, p) { return this.get(Endpoints.Media.Likes(id), p); }
-  async likeMedia(id, p) { return this.post(Endpoints.Media.Likes(id), p); }
-  async unlikeMedia(id, p) { return this.del(Endpoints.Media.Likes(id), p); }
-
-  // TAGS endpoints
-  async getHashtag(name, p) { return this.get(Endpoints.Tags.Tag(name), p); }
-  async getRecentMediaByHashtag(name, p) { return this.get(Endpoints.Tags.RecentMedia(name), p); }
-  async searchHashtags(p) { return this.get(Endpoints.Tags.Search, p); }
-
-  // LOCATIONS endpoints
-  async getLocation(id, p) { return this.get(Endpoints.Locations.Location(id), p); }
-  async getRecentMediaByLocation(id, p) { return this.get(Endpoints.Locations.RecentMedia(id), p); }
-  async searchLocations(p) { return this.get(Endpoints.Locations.Search, p); }
+  async deleteSubscription(options = {}) {
+    const identifier = options.id ? `id=${options.id}` : `object=${options.object}`;
+    return request
+      .del(`${Endpoints.Subscriptions}?client_id=${this.auth.id}&client_secret=${this.auth.secret}&${identifier}`)
+      .then(r => r.body);
+  }
 }
 
-module.exports = InstagramClient;
+module.exports = Client;
