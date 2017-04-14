@@ -52,6 +52,11 @@ class InstagramClient {
   async getHashtag(name, p) { return this.get(Endpoints.Tags.Tag(name), p); }
   async getRecentMediaByHashtag(name, p) { return this.get(Endpoints.Tags.RecentMedia(name), p); }
   async searchHashtags(p) { return this.get(Endpoints.Tags.Search, p); }
+
+  // LOCATIONS endpoints
+  async getLocation(id, p) { return this.get(Endpoints.Locations.Location(id), p); }
+  async getRecentMediaByLocation(id, p) { return this.get(Endpoints.Locations.RecentMedia(id), p); }
+  async searchLocations(p) { return this.get(Endpoints.Locations.Search, p); }
 }
 
 module.exports = InstagramClient;
