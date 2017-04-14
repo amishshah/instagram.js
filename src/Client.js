@@ -42,6 +42,11 @@ class InstagramClient {
   async getComments(id, p) { return this.get(Endpoints.Media.Comments(id), p); }
   async createComment(id, p) { return this.post(Endpoints.Media.Comments(id), p); }
   async deleteComment(id, p) { return this.del(Endpoints.Media.Comment(id), p); }
+
+  // LIKES endpoints
+  async getMediaLikes(id, p) { return this.get(Endpoints.Media.Likes(id), p); }
+  async likeMedia(id, p) { return this.post(Endpoints.Media.Likes(id), p); }
+  async unlikeMedia(id, p) { return this.del(Endpoints.Media.Likes(id), p); }
 }
 
 module.exports = InstagramClient;

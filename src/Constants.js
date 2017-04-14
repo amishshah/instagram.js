@@ -21,6 +21,7 @@ const Endpoints = {
     Search: `${Media}/search`,
     Comments: id => `${Media}/${id}/comments`,
     Comment: id => `${Endpoints.Media.Comments}/${id}`,
+    Likes: id => `${Endpoints.Media.Media(id)}/likes`
   },
 };
 
