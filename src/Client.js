@@ -10,7 +10,9 @@ class InstagramClient {
     return new Promise((resolve, reject) => {
       parameters.access_token = this.token;
       parameters = Object.entries(parameters).map(pair => `${pair[0]}=${encodeURIComponent(pair[1])}`).join('&');
-      request[verb](`${endpoint}?${parameters}`).end((e, r) => e ? reject(e) : resolve(r.body));
+      const url = `${endpoint}?${parameters}`;
+      console.log(url);
+      request[verb](url).end((e, r) => e ? reject(e) : resolve(r.body));
     });
   }
 
@@ -20,21 +22,17 @@ class InstagramClient {
   del(endpoint, parameters) { return this._api('del', endpoint, parameters); }
 
   // USERS endpoints
-  getUser(id) {
-    return this.get(Endpoints.Users.User(id));
-  }
+  getUser(id) { return this.get(Endpoints.Users.User(id)); }
+  getUserMediaRecent(id, p) { return this.get(Endpoints.Users.Media.Recent(id), p); }
+  getLikedMedia(p) { return this.get(Endpoints.Users.Media.Liked('self'), p); }
+  searchUsers(p) { return this.get(Endpoints.Users.Search, p); }
 
-  getUserMediaRecent(id, parameters) {
-    return this.get(Endpoints.Users.Media.Recent(id), parameters);
-  }
-
-  getSelfMediaLiked(parameters) {
-    return this.get(Endpoints.Users.Media.Liked('self'), parameters);
-  }
-
-  searchUsers(parameters) {
-    return this.get(Endpoints.Users.Search, parameters);
-  }
+  // RELATIONSHIPS endpoints
+  getFollowing(p) { return this.get(Endpoints.Users.Following, p); }
+  getFollowers(p) { return this.get(Endpoints.Users.Followers, p); }
+  getRequestedFollowers(p) { return this.get(Endpoints.Users.RequestedFollowers, p); }
+  getRelationship(id, p) { return this.get(Endpoints.Users.RelationshipWith(id), p); }
+  modifyRelationship(id, p) { return this.post(Endpoints.Users.RelationshipWith(id), p); }
 }
 
 module.exports = InstagramClient;
